@@ -1,0 +1,26 @@
+node {
+  size: 4px;
+  fill-mode: dyn-plain;
+  fill-color: lightyellow, yellow, orange, red, darkred;
+  /*fill-color: lightgreen, green, darkgreen;*/
+  /*fill-color: black;*/
+}
+
+graph {
+  fill-mode: plain;
+  fill-color: black;
+}
+
+node:clicked {
+    fill-color: green;
+}
+
+node:selected {
+    fill-color: blue;
+}
+
+edge {
+  arrow-shape: arrow;
+  arrow-size: 4px, 1px;
+  fill-color: rgba(0,255,0,50);
+}
