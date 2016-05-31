@@ -30,11 +30,11 @@ public class Cerebro {
     spine.initGraphicGraph();
     spine.computeLayout();
     
-    spine.computeVisualClusters();
+//    spine.computeVisualClusters();
     
     JungCommunityComputer communityComputer = 
         JungCommunityComputer.getInstance(dynamicFlowGraph);
-    spine.setCommunityComputer(communityComputer);
+//    spine.setCommunityComputer(communityComputer);
 //    spine.detectCommunities();
     
     spine.spitGraph(subject);

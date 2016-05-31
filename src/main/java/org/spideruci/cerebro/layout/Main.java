@@ -89,7 +89,7 @@ public class Main {
     } catch (OutOfMemoryError e) {
       e.printStackTrace();
       display.pinNodesOnDynamicFlowGraph();
-      String brainPath = "brain-" + subject + "4.json";
+      String brainPath = subject + "4.json";
       dynamicFlowGraph.spitDynamicFlowGraph(new PrintStream(brainPath));
       System.exit(1);
     }
@@ -132,7 +132,7 @@ public class Main {
       }
     }
     
-    String brainPath = "brain-" + subject + "4.json";
+    String brainPath = subject + ".json";
     dynamicFlowGraph.spitDynamicFlowGraph(new PrintStream(brainPath));
 
     Scanner cmdScanner = new Scanner(System.in);
@@ -143,7 +143,7 @@ public class Main {
       String[] inputs = line.split("\\s+");
       String command = inputs[0];
       String[] params = inputs.length == 1 ? null : Arrays.copyOfRange(inputs, 1, inputs.length);
-      if(!mainmenu(null, command, params)) break;
+      if(!mainmenu(display, command, params)) break;
       System.out.print(">> ");
     }
 
@@ -159,11 +159,10 @@ public class Main {
       String ... params) {
     switch(option) {
     case "snap":
-      try {
-        display.spitImage(String.valueOf(params[0]));
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      System.out.println("The [snap] command is currently not working."
+          + "\n Open this URL in a browser to open an issue on project's issue "
+          + "\n tracker to lobby for this feature -- "
+          + "\nhttps://github.com/spideruci/cerebro-layout/issues/new?body=save%20layout%20as%20a%20png%20image%20using%20a%20'snap'%20command&title=snap%20command&labels=enhancement");
       break;
     case "hide-edges":
       display.hideEdges(); break;

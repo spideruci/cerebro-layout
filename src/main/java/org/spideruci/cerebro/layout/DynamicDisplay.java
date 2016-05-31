@@ -202,14 +202,14 @@ public class DynamicDisplay {
       FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
       
       pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
-      pic.writeAll(display.graph, display.graph.getId() + id +  ".png");
+      pic.writeAll(this.graph, this.graph.getId() + id +  ".png");
     }
     
     public void spitImage(String id) throws IOException {
       FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
       
       pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
-      pic.writeAll(display.graph, id +  ".png");
+      pic.writeAll(this.graph, id +  ".png");
     }
 
     public void weighEdges() {

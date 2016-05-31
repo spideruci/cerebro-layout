@@ -33,7 +33,7 @@ public class DynamicFlowGraph {
     SourceLineNode lineNode = 
         new SourceLineNode(className, 
             event.getExecInsnDynHost(), 
-            Integer.parseInt(event.getExecInsnId()));
+            Integer.parseInt(event.getExecInsnEventId()));
     int id = nodes.indexOf(lineNode);
 
     if(id == -1) {
