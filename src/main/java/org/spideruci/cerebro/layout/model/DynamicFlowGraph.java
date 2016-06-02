@@ -3,28 +3,29 @@ package org.spideruci.cerebro.layout.model;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
 
-import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.spideruci.analysis.trace.TraceEvent;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import com.google.common.cache.Weigher;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table.Cell;
 
 public class DynamicFlowGraph {
   private final HashBasedTable<Integer, Integer, Integer> edges;
   private final ArrayList<SourceLineNode> nodes;  
-  private final ArrayList<String> colorCodes;
+  private final ArrayList<String> classCodes;
+  private final ArrayList<String> methodCodes;
+  private int clusterCount;
   private final ArrayList<FlowIdent> flows;
 
   public DynamicFlowGraph() {
     edges = HashBasedTable.create();
     nodes = new ArrayList<>();
-    colorCodes = new ArrayList<>();
+    classCodes = new ArrayList<>();
+    methodCodes = new ArrayList<>();
     flows = new ArrayList<>();
+    clusterCount = -1;
   }
 
 
@@ -44,9 +45,15 @@ public class DynamicFlowGraph {
       id = id + 1;
     }
 
-    int colorCode = colorCodes.indexOf(className);
-    if(colorCode == -1) {
-      colorCodes.add(className);
+    int classCode = classCodes.indexOf(className);
+    if(classCode == -1) {
+      classCodes.add(className);
+    }
+
+    String methodName = className + "." + lineNode.methodName;
+    int methodCode = methodCodes.indexOf(methodName);
+    if(methodCode == -1) {
+      methodCodes.add(methodName);
     }
 
     return nodes.get(id - 1);
@@ -63,9 +70,15 @@ public class DynamicFlowGraph {
     }
     
     String className = node.className;
-    int colorCode = colorCodes.indexOf(className);
-    if(colorCode == -1) {
-      colorCodes.add(className);
+    int classCode = classCodes.indexOf(className);
+    if(classCode == -1) {
+      classCodes.add(className);
+    }
+
+    String methodName = className + "." + node.methodName;
+    int methodCode = methodCodes.indexOf(methodName);
+    if(methodCode == -1) {
+      methodCodes.add(methodName);
     }
     
     return nodes.get(id - 1);
@@ -109,15 +122,34 @@ public class DynamicFlowGraph {
     return this.nodes.get(nodeId - 1);
   }
 
-  public int colorCount() {
-    return colorCodes.size();
+  public int classCodeCount() {
+    return classCodes.size();
   }
 
-  public int colorCode(int nodeId) {
+  public int getNodeClassCode(int nodeId) {
     SourceLineNode node = nodes.get(nodeId - 1);
     String className = node.className();
-    int colorcode = colorCodes.indexOf(className);
-    return colorcode;
+    int colorCode = classCodes.indexOf(className);
+    return colorCode;
+  }
+
+  public int methodCodeCount() {
+    return methodCodes.size();
+  }
+
+  public int getNodeMethodCode(int nodeId) {
+    SourceLineNode node = nodes.get(nodeId - 1);
+    String methodName = node.className() + "." + node.methodName();
+    int methodCode = methodCodes.indexOf(methodName);
+    return methodCode;
+  }
+
+  public void setClusterCount(int clusterCount) {
+    this.clusterCount = clusterCount;
+  }
+
+  public int getClusterCount() {
+    return this.clusterCount;
   }
 
   public void spitDynamicFlowGraph(PrintStream out) {
@@ -160,4 +192,5 @@ public class DynamicFlowGraph {
     String json = JsonWriter.objectToJson(graphElement);
     out.print(json);
   }
+
 }

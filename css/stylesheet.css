@@ -20,7 +20,9 @@ node:selected {
 }
 
 edge {
-  arrow-shape: arrow;
+  /*shape: angle;*/
+
+  arrow-shape: none;
   arrow-size: 4px, 1px;
-  fill-color: rgba(0,255,0,50);
+  /*fill-color: rgba(0,255,0,50);*/
 }

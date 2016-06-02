@@ -202,6 +202,9 @@ public class Spine {
         System.out.println(node2.toString() + " " + node2.colorGroup);
       }
     }
+
+    flowGraph.setClusterCount(clusters.size());
+
     return this;
   }
   

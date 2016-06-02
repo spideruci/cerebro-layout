@@ -22,25 +22,31 @@ public class Cerebro {
     String subject = args[args.length - 1];
     System.out.println(subject);
     dynamicFlowGraph.spitDynamicFlowGraph(System.out);
-    
+
+    analyzeDynamicFlow(subject, dynamicFlowGraph);
+  }
+
+  public static void analyzeDynamicFlow(
+      final String subject, final DynamicFlowGraph dynamicFlowGraph) throws IOException {
+
     Spine spine = Spine.getInstance(dynamicFlowGraph);
     BarnesHutLayout layout = configLayout(getSpringBox());
-    
+
     spine.setLayoutComputer(layout);
     spine.initGraphicGraph();
     spine.computeLayout();
-    
-//    spine.computeVisualClusters();
-    
-    JungCommunityComputer communityComputer = 
-        JungCommunityComputer.getInstance(dynamicFlowGraph);
+
+    spine.computeVisualClusters();
+
+//    JungCommunityComputer communityComputer =
+//        JungCommunityComputer.getInstance(dynamicFlowGraph);
 //    spine.setCommunityComputer(communityComputer);
 //    spine.detectCommunities();
-    
+
     spine.spitGraph(subject);
   }
   
-  private static DynamicFlowGraph getDynamicFlowGraph(String[] args) throws IOException {
+  public static DynamicFlowGraph getDynamicFlowGraph(String[] args) throws IOException {
     if(args.length == 0 || args[0] == null || args[0].length() == 0) {
       throw new RuntimeException("Specify file path as argument");
     }
