@@ -71,6 +71,10 @@ public class TraceDirReader {
           break;
         }
         
+        if(event.getExecInsnType() != EventType.$line$) {
+          continue;
+        }
+        
         String ownerClass = traceReader.getExecutedEventOwnerClass(event);
         String ownerMethod = traceReader.getExecutedEventOwnerMethod(event);
         int lineNumber = traceReader.getExecutedEventSourceLine(event);

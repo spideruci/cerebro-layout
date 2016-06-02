@@ -1,29 +1,21 @@
 package org.spideruci.cerebro.layout;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-
-import org.apache.commons.math3.ml.clustering.Cluster;
-import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import org.graphstream.stream.Source;
-import org.graphstream.ui.layout.Layout;
+import com.google.common.collect.Table.Cell;
 import org.spideruci.cerebro.Cerebro;
 import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
 import org.spideruci.cerebro.layout.model.SourceLineNode;
 
-import com.google.common.collect.Table.Cell;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import static org.spideruci.cerebro.layout.DynamicDisplay.DEFAULT_TITLE;
 import static org.spideruci.cerebro.layout.DynamicDisplay.init;
 
 public class Main {
 
-  public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+  public static void main(String[] args) throws
+      IOException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 
     System.out.println("Reading dynamic graph...");
     DynamicFlowGraph dynamicFlowGraph = Cerebro.getDynamicFlowGraph(args);
