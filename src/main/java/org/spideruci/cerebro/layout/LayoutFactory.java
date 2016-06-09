@@ -9,7 +9,8 @@ public class LayoutFactory {
   public static String layoutConfig = null;
   
   public static SpringBox getSpringBox() {
-    SpringBox layout = new SpringBox();
+//    SpringBox layout = new SpringBox();
+    NewSpringBox layout = new NewSpringBox();
     layoutConfig = "-springbox";
     return layout;
   }
