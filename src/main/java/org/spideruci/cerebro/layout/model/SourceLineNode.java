@@ -5,10 +5,10 @@ import org.apache.commons.math3.ml.clustering.Clusterable;
 import com.google.common.base.Preconditions;
 
 public class SourceLineNode implements Clusterable {
-  public final String className;
-  public final String methodName;
-  public final int lineNum;
-  public int id;
+  private final String className;
+  private final String methodName;
+  private final int lineNum;
+  private int id;
   public int colorGroup;
   public float x;
   public float y;
