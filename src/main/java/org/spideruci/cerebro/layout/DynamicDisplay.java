@@ -29,326 +29,333 @@ import org.spideruci.cerebro.layout.model.SourceLineNode;
 
 
 public class DynamicDisplay {
-  private Graph graph;
-  public Viewer viewer;
-  private GraphicGraph ggraph;
-  SortedSet<Integer> buffer;
-  DynamicFlowGraph displayedGraph;
+	private Graph graph;
+	public Viewer viewer;
+	private GraphicGraph ggraph;
+	SortedSet<Integer> buffer;
+	DynamicFlowGraph displayedGraph;
 
-  LinLog layout;
-  
-  private static int uniqId = 0;
-  public static final String DEFAULT_TITLE = "Cerebro";
-  private static final int BUFFER_LIMIT = 300;
-  
-  public static DynamicDisplay init(String title, DynamicFlowGraph displayedGraph) {
-    System.setProperty("org.graphstream.ui.renderer",
-        "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-    DynamicDisplay display = new DynamicDisplay(title, displayedGraph);
+	LinLog layout;
 
-    display.setup();
+	private static int uniqId = 0;
+	public static final String DEFAULT_TITLE = "Cerebro";
+	private static final int BUFFER_LIMIT = 300;
 
-    display.launchDisplay();
-    return display;
-  }
+	public static DynamicDisplay init(String title, DynamicFlowGraph displayedGraph) {
+		System.setProperty("org.graphstream.ui.renderer",
+				"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		DynamicDisplay display = new DynamicDisplay(title, displayedGraph);
 
-  private DynamicDisplay(String title, DynamicFlowGraph displayedGraph) {
-    graph = new MultiGraph(title);
-    buffer = Collections.synchronizedSortedSet(new TreeSet<Integer>());
-    this.displayedGraph = displayedGraph;
-  }
+		display.setup();
 
-  private void setup() {
-    this.graph.setStrict(false);
-    this.graph.setAutoCreate(true);
-    File file = new File("css/stylesheet.css");
-    String url = "url(file://" + file.getAbsolutePath() + ")";
-    this.graph.addAttribute("ui.stylesheet", url);
-    this.graph.addAttribute("layout.quality", 4);
-    this.buffer.clear();
-  }
+		display.launchDisplay();
+		return display;
+	}
 
-  private void launchDisplay() {
-    this.viewer = this.graph.display();
-    this.viewer.disableAutoLayout();
+	private DynamicDisplay(String title, DynamicFlowGraph displayedGraph) {
+		graph = new MultiGraph(title);
+		buffer = Collections.synchronizedSortedSet(new TreeSet<Integer>());
+		this.displayedGraph = displayedGraph;
+	}
 
-    this.ggraph = this.viewer.getGraphicGraph();
+	private void setup() {
+		this.graph.setStrict(false);
+		this.graph.setAutoCreate(true);
+		File file = new File("css/stylesheet.css");
+		String url = "url(file://" + file.getAbsolutePath() + ")";
+		this.graph.addAttribute("ui.stylesheet", url);
+		this.graph.addAttribute("layout.quality", 4);
+		this.buffer.clear();
+	}
 
-    View view = this.viewer.getDefaultView();
+	private void launchDisplay() {
+		this.viewer = this.graph.display();
+		this.viewer.disableAutoLayout();
 
-    ViewerPipe fromViewer = this.viewer.newViewerPipe();
-    ViewerEventListener viewerListener =
-        new ViewerEventListener(fromViewer, this.displayedGraph);
-    view.setMouseManager(viewerListener);
-    view.addMouseWheelListener(viewerListener);
-    fromViewer.addViewerListener(viewerListener);
-    fromViewer.addSink(this.graph);
-  }
-    
-  public void clear() {
-    this.graph.clear();
-  }
-    
-  public synchronized void showDependence(int from, int to) {
-    showDependence(String.valueOf(from), String.valueOf(to), Double.NaN);
-  }
+		this.ggraph = this.viewer.getGraphicGraph();
 
-  public synchronized void showDependence(int from, int to, double weight) {
-    showDependence(String.valueOf(from), String.valueOf(to), weight);
-  }
-  
-  public void showDependence(String from, String to) {
-    showDependence(from, to, Double.NaN);
-  }
-  
-  public synchronized void showDependence(String from, String to, double weight) {
-    showDependence(from, Double.NaN, Double.NaN, to, Double.NaN, Double.NaN, weight);
-  }
+		View view = this.viewer.getDefaultView();
 
-  public synchronized void showDependence(int from, double fX, double fY,
-                                          int to, double tX, double tY,
-                                          double weight) {
-    showDependence(String.valueOf(from), fX, fY, String.valueOf(to), tX, tY, weight);
-  }
+		ViewerPipe fromViewer = this.viewer.newViewerPipe();
+		ViewerEventListener viewerListener =
+				new ViewerEventListener(fromViewer, this.displayedGraph);
+		view.setMouseManager(viewerListener);
+		view.addMouseWheelListener(viewerListener);
+		fromViewer.addViewerListener(viewerListener);
+		fromViewer.addSink(this.graph);
+	}
 
-  public synchronized void showDependence(String from, double fX, double fY,
-                                          String to, double tX, double tY,
-                                          double weight) {
-    showNode(from, fX, fY);
-    showNode(to, tX, tY);
-    int id = uniqId++;
+	public void clear() {
+		this.graph.clear();
+	}
 
-    try {
-      Node fromNode = graph.getNode(from);
-      if(fromNode == null || !fromNode.hasEdgeToward(to)) {
-        Edge edge = graph.addEdge(String.valueOf(id), from, to, true);
-        edge.addAttribute("ui.hide");
+	public synchronized void showDependence(int from, int to) {
+		showDependence(String.valueOf(from), String.valueOf(to), Double.NaN);
+	}
 
-        final String style =
-            String.format("fill-color: rgba(150,150,150,50);size: %spx;",
-                Double.isNaN(weight) ? 5 : plateau(weight));
-        edge.addAttribute("ui.style", style);
-      }
-    } catch (IdAlreadyInUseException e) { }
-  }
+	public synchronized void showDependence(int from, int to, double weight) {
+		showDependence(String.valueOf(from), String.valueOf(to), weight);
+	}
 
-  private double plateau(double value) {
-    Preconditions.checkArgument(!Double.isNaN(value));
-    return 1.2*(1 + Math.log(value));
-  }
+	public void showDependence(String from, String to) {
+		showDependence(from, to, Double.NaN);
+	}
 
-  private void showNode(String nodeId, double x, double y) {
-    try {
-      Node node = graph.addNode(nodeId);
-      if(!Double.isNaN(x)) {
-        node.addAttribute("x", x);
-      }
+	public synchronized void showDependence(String from, String to, double weight) {
+		showDependence(from, Double.NaN, Double.NaN, to, Double.NaN, Double.NaN, weight);
+	}
 
-      if(!Double.isNaN(y)) {
-        node.addAttribute("y", y);
-      }
+	public synchronized void showDependence(int from, double fX, double fY,
+			int to, double tX, double tY,
+			double weight) {
+		showDependence(String.valueOf(from), fX, fY, String.valueOf(to), tX, tY, weight);
+	}
 
-    } catch(IdAlreadyInUseException nodeInUse) { }
-  }
+	public synchronized void showDependence(String from, double fX, double fY,
+			String to, double tX, double tY,
+			double weight) {
+		showNode(from, fX, fY);
+		showNode(to, tX, tY);
+		int id = uniqId++;
 
-  private void removeNode(String nodeId) {
-    try {
-      graph.removeNode(nodeId);
-    } catch(ElementNotFoundException nodeNotFound) {
-      // Do nothing for now.
-    }
-  }
-    
-    @SuppressWarnings("unused")
-    private synchronized void bufferNodes(int nodeId1, int nodeId2) {
-      buffer.add(nodeId1);
-      buffer.add(nodeId2);
-      
-      while(buffer.size() > BUFFER_LIMIT) {
-        int oldestNode = buffer.first();
-        buffer.remove(oldestNode);
-        removeNode(String.valueOf(oldestNode));
-      }
-      
-      for(Node node : graph.getEachNode()) {
-        if(node.getEdgeSet().size() == 0) {
-          buffer.remove(Integer.parseInt(node.getId()));
-          graph.removeNode(node);
-        }
-      }
-    }
-    
-    public static void play() throws IOException { }
-    
-    public void spitImage(int id) throws IOException {
-      FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
-      
-      pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
-      pic.writeAll(this.graph, this.graph.getId() + id +  ".png");
-    }
-    
-    public void spitImage(String id) throws IOException {
-      FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
-      
-      pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
-      pic.writeAll(this.graph, id +  ".png");
-    }
+		try {
+			Node fromNode = graph.getNode(from);
+			if(fromNode == null || !fromNode.hasEdgeToward(to)) {
+				Edge edge = graph.addEdge(String.valueOf(id), from, to, true);
+				edge.addAttribute("ui.hide");
 
-    public void weighEdges() {
-      double maxCount = displayedGraph.maxEdgeCount() + 1.0;
-      for(Edge edge : graph.getEachEdge()) {
-        Node from = edge.getSourceNode();
-        Node to = edge.getTargetNode();
-        int fromId = Integer.parseInt(from.toString());
-        int toId = Integer.parseInt(to.toString());
-        int count = displayedGraph.getEdgeCount(fromId, toId);
-        double weight = (maxCount - count)/maxCount;
-        edge.addAttribute("layout.weight", weight);
-      }
-    }
+				final String style =
+						String.format("fill-color: rgba(150,150,150,50);size: %spx;",
+								Double.isNaN(weight) ? 5 : plateau(weight));
+				edge.addAttribute("ui.style", style);
+			}
+		} catch (IdAlreadyInUseException e) { }
+	}
 
-    public void colorNodes() {
-      int clusterCount = displayedGraph.getClusterCount();
-      String[] palette = ColorPalette.generatePalette(clusterCount);
+	private double plateau(double value) {
+		Preconditions.checkArgument(!Double.isNaN(value));
+		return 1.2*(1 + Math.log(value));
+	}
 
-      for(Node node : graph.getEachNode()) {
-        int nodeId = Integer.valueOf(node.getId());
-        SourceLineNode dynamicNode = displayedGraph.getNode(nodeId);
-        int colorIndex = dynamicNode.colorGroup;
-        if(colorIndex <= -1) {
-          continue;
-        }
+	private void showNode(String nodeId, double x, double y) {
+		try {
+			Node node = graph.addNode(nodeId);
+			if(!Double.isNaN(x)) {
+				node.addAttribute("x", x);
+			}
 
-        colorNode(palette, colorIndex, node);
-      }
-    }
+			if(!Double.isNaN(y)) {
+				node.addAttribute("y", y);
+			}
 
-  public void colorNodesByClass() {
-    int classCodeCount = displayedGraph.classCodeCount();
-    String[] palette = ColorPalette.generatePalette(classCodeCount);
+		} catch(IdAlreadyInUseException nodeInUse) { }
+	}
 
-    for(Node node : graph.getEachNode()) {
-      int nodeId = Integer.valueOf(node.getId());
-      int colorIndex = displayedGraph.getNodeClassCode(nodeId);
+	private void removeNode(String nodeId) {
+		try {
+			graph.removeNode(nodeId);
+		} catch(ElementNotFoundException nodeNotFound) {
+			// Do nothing for now.
+		}
+	}
 
-      if(colorIndex <= -1) {
-        continue;
-      }
+	@SuppressWarnings("unused")
+	private synchronized void bufferNodes(int nodeId1, int nodeId2) {
+		buffer.add(nodeId1);
+		buffer.add(nodeId2);
 
-      colorNode(palette, colorIndex, node);
-    }
-  }
+		while(buffer.size() > BUFFER_LIMIT) {
+			int oldestNode = buffer.first();
+			buffer.remove(oldestNode);
+			removeNode(String.valueOf(oldestNode));
+		}
 
-  public void colorNodesByMethod() {
-      int methodCodeCount = displayedGraph.methodCodeCount();
-      String[] palette = ColorPalette.generatePalette(methodCodeCount);
+		for(Node node : graph.getEachNode()) {
+			if(node.getEdgeSet().size() == 0) {
+				buffer.remove(Integer.parseInt(node.getId()));
+				graph.removeNode(node);
+			}
+		}
+	}
 
-      for(Node node : graph.getEachNode()) {
-        int nodeId = Integer.valueOf(node.getId());
-        int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
+	public static void play() throws IOException { }
 
-        if(colorIndex <= -1) {
-          continue;
-        }
+	public void spitImage(int id) throws IOException {
+		FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
 
-        colorNode(palette, colorIndex, node);
-      }
-    }
+		pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
+		pic.writeAll(this.graph, this.graph.getId() + id +  ".png");
+	}
 
-  private void colorNode(String[] palette, int colorIndex, Node node) {
-    Preconditions.checkNotNull(palette);
-    Preconditions.checkElementIndex(colorIndex, palette.length);
-    String color = palette[colorIndex % palette.length];
-    String colorStyle = "fill-color: " + color + ";";
-    node.setAttribute("ui.style", colorStyle);
-  }
+	public void spitImage(String id) throws IOException {
+		FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
 
-    public void decolorNodes() {
-      for(Node node : graph.getEachNode()) {
-        node.setAttribute("ui.style", "fill-color:lightyellow;");
-      }
-    }
+		pic.setLayoutPolicy(LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
+		pic.writeAll(this.graph, id +  ".png");
+	}
 
-  private int nodeSize = 4;
+	public void weighEdges() {
+		double maxCount = displayedGraph.maxEdgeCount() + 1.0;
+		for(Edge edge : graph.getEachEdge()) {
+			Node from = edge.getSourceNode();
+			Node to = edge.getTargetNode();
+			int fromId = Integer.parseInt(from.toString());
+			int toId = Integer.parseInt(to.toString());
+			int count = displayedGraph.getEdgeCount(fromId, toId);
+			double weight = (maxCount - count)/maxCount;
+			edge.addAttribute("layout.weight", weight);
+		}
+	}
 
-  public void expandNodes() {
-    if(nodeSize < 20) {
-      nodeSize += 1;
-    }
+	public void colorNodes() {
+		int clusterCount = displayedGraph.getClusterCount();
+		String[] palette = ColorPalette.generatePalette(clusterCount);
 
-    for(Node node : graph.getEachNode()) {
-      node.setAttribute("ui.style",
-          String.format("size: %spx;", nodeSize));
-    }
-  }
+		for(Node node : graph.getEachNode()) {
+			int nodeId = Integer.valueOf(node.getId());
+			SourceLineNode dynamicNode = displayedGraph.getNode(nodeId);
+			int colorIndex = dynamicNode.colorGroup;
+			if(colorIndex <= -1) {
+				continue;
+			}
 
-  public void shrinkNodes() {
-    if(nodeSize > 4) {
-      nodeSize -= 1;
-    }
+			colorNode(palette, colorIndex, node);
+		}
+	}
 
-    for(Node node : graph.getEachNode()) {
-      node.setAttribute("ui.style",
-          String.format("size: %spx;", nodeSize));
-    }
-  }
-    
-    public void showEdges() {
-      for(Edge edge : graph.getEachEdge()) {
-        edge.removeAttribute("ui.hide");
-      }
-    }
-    
-    public void hideEdges() {
-      for(Edge edge : graph.getEachEdge()) {
-        edge.addAttribute("ui.hide");
-      }
-    }
-    
-    public void pinNodesOnDynamicFlowGraph() {
-      for(Node node : ggraph.getEachNode()) {
-        int nodeId = Integer.valueOf(node.getId());
-        SourceLineNode lineNode =  displayedGraph.getNode(nodeId);
-//        int colorGroup = displayedGraph.getNodeClassCode(nodeId);
-//        lineNode.initColorGroup(colorGroup);
-        Object[] xyz = node.getAttribute("xyz");
-        double x = (double)xyz[0] * 20;
-        double y = (double)xyz[1] * 20;
-        lineNode.initXY(x, y);
-      }
-    }
-    
-    public Layout getDangerousLayout() 
-        throws NoSuchFieldException, 
-        IllegalArgumentException, IllegalAccessException {
-      Object yahoo = accessField(viewer, "optLayout");
-      Layout layout = accessField(yahoo, "layout");
-      return layout;
-    }
-    
-    @SuppressWarnings("unchecked")
-    private static <T> T accessField(Object myObj, String fieldName) 
-        throws NoSuchFieldException, 
-        IllegalArgumentException, IllegalAccessException {
-      Class<?> myClass = myObj.getClass();
-      Field myField = getField(myClass, fieldName);
-      myField.setAccessible(true);
-      return (T) myField.get(myObj);
-    }
-    
-      private static Field getField(Class<?> clazz, String fieldName)
-          throws NoSuchFieldException {
-        try {
-          return clazz.getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-          Class<?> superClass = clazz.getSuperclass();
-          if (superClass == null) {
-            throw e;
-          } else {
-            return getField(superClass, fieldName);
-          }
-        }
-      }
+	public void colorNodesByClass() {
+		int classCodeCount = displayedGraph.classCodeCount();
+		String[] palette = ColorPalette.generatePalette(classCodeCount);
 
-      
+		for(Node node : graph.getEachNode()) {
+			int nodeId = Integer.valueOf(node.getId());
+			int colorIndex = displayedGraph.getNodeClassCode(nodeId);
+
+			if(colorIndex <= -1) {
+				continue;
+			}
+
+			colorNode(palette, colorIndex, node);
+		}
+	}
+
+	public void colorNodesByMethod() {
+		int methodCodeCount = displayedGraph.methodCodeCount();
+		String[] palette = ColorPalette.generatePalette(methodCodeCount);
+
+		for(Node node : graph.getEachNode()) {
+			int nodeId = Integer.valueOf(node.getId());
+			int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
+
+			if(colorIndex <= -1) {
+				continue;
+			}
+
+			colorNode(palette, colorIndex, node);
+		}
+	}
+
+	private void colorNode(String[] palette, int colorIndex, Node node) {
+		Preconditions.checkNotNull(palette);
+		Preconditions.checkElementIndex(colorIndex, palette.length);
+		String color = palette[colorIndex % palette.length];
+		String colorStyle = "fill-color: " + color + ";";
+		node.setAttribute("ui.style", colorStyle);
+	}
+
+	public void decolorNodes() {
+		for(Node node : graph.getEachNode()) {
+			node.setAttribute("ui.style", "fill-color:lightyellow;");
+		}
+	}
+
+	private int nodeSize = 4;
+
+	public void expandNodes() {
+		if(nodeSize < 20) {
+			nodeSize += 1;
+		}
+
+		for(Node node : graph.getEachNode()) {
+			node.setAttribute("ui.style",
+					String.format("size: %spx;", nodeSize));
+		}
+	}
+
+	public void shrinkNodes() {
+		if(nodeSize > 4) {
+			nodeSize -= 1;
+		}
+
+		for(Node node : graph.getEachNode()) {
+			node.setAttribute("ui.style",
+					String.format("size: %spx;", nodeSize));
+		}
+	}
+
+	public void showEdges() {
+		for(Edge edge : graph.getEachEdge()) {
+			edge.removeAttribute("ui.hide");
+		}
+	}
+
+	public void hideEdges() {
+		for(Edge edge : graph.getEachEdge()) {
+			edge.addAttribute("ui.hide");
+		}
+	}
+
+	public void pinNodesOnDynamicFlowGraph() {
+		for(Node node : ggraph.getEachNode()) {
+			int nodeId = Integer.valueOf(node.getId());
+			SourceLineNode lineNode =  displayedGraph.getNode(nodeId);
+			//        int colorGroup = displayedGraph.getNodeClassCode(nodeId);
+			//        lineNode.initColorGroup(colorGroup);
+			Object[] xyz = node.getAttribute("xyz");
+			double x = (double)xyz[0] * 20;
+			double y = (double)xyz[1] * 20;
+			lineNode.initXY(x, y);
+		}
+	}
+
+	public Layout getDangerousLayout() 
+			throws NoSuchFieldException, 
+			IllegalArgumentException, IllegalAccessException {
+		Object yahoo = accessField(viewer, "optLayout");
+		Layout layout = accessField(yahoo, "layout");
+		return layout;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T accessField(Object myObj, String fieldName) 
+			throws NoSuchFieldException, 
+			IllegalArgumentException, IllegalAccessException {
+		Class<?> myClass = myObj.getClass();
+		Field myField = getField(myClass, fieldName);
+		myField.setAccessible(true);
+		return (T) myField.get(myObj);
+	}
+
+	private static Field getField(Class<?> clazz, String fieldName)
+			throws NoSuchFieldException {
+		try {
+			return clazz.getDeclaredField(fieldName);
+		} catch (NoSuchFieldException e) {
+			Class<?> superClass = clazz.getSuperclass();
+			if (superClass == null) {
+				throw e;
+			} else {
+				return getField(superClass, fieldName);
+			}
+		}
+	}
+
+	public void setStartNode(){
+		Node node = graph.getNode(0);
+		node.setAttribute("ui.style",
+				String.format("shape: %s; fill-color: %s;", "diamond", "white"));
+
+//		n.addAttribute("ui.style", "size: 10px, 10px; shape: diamond; fill-color: blue;");
+	}
+
 }
