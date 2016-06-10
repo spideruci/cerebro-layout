@@ -34,6 +34,18 @@ public class NewSpringBox extends SpringBox {
 		return K2;
 	}
 	
+	public void setK(double d){
+		k = d;
+	}
+	
+	public void setK1(double d){
+		K1 = d;
+	}
+	
+	public void setK2(double d){
+		K2 = d;
+	}
+	
 	@Override
 	public NodeParticle newNodeParticle(String id) {
 		return new NewSpringBoxNodeParticle(this, id);

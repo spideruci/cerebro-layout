@@ -39,14 +39,16 @@ public class NewSpringBoxNodeParticle extends SpringBoxNodeParticle {
 						: 0);
 
 				double len = delta.normalize();
-//				double k = box.getK() * edge.weight;
-//				double factor = box.K1 * (len - k);
+				double k = box.getK() * edge.weight;
+				double factor = box.getK1() * (len - k); // original source
 				
-				double factor = box.getK1() * edge.weight;
+//				double factor = box.getK1() * edge.weight * edge.weight;
 //				double factor = box.getK1() * Math.log10(edge.weight);
+//				double factor = box.getK1() * Math.sqrt(edge.weight);
 
-				// delta.scalarMult( factor );
-				delta.scalarMult(factor * (1f / (neighbourCount * 0.1f)));
+//				 delta.scalarMult( factor );
+//				delta.scalarMult(factor * (1f / (neighbourCount * 0.1f)));
+				delta.scalarMult(factor * (1f / (neighbourCount)));
 				// ^^^ XXX NEW inertia based on the node degree. This is one
 				// of the amelioration of the Spring-Box algorithm. Compare
 				// it to the Force-Atlas algorithm that does this on
@@ -83,10 +85,10 @@ public class NewSpringBoxNodeParticle extends SpringBoxNodeParticle {
 						len = box.getK(); // XXX NEW To prevent infinite
 									// repulsion.
 				
-//					double factor = len != 0 ? ((box.K2 / (len * len)) * node.weight)
-//						: 0.00001;
+					double factor = ((box.getK2() / (len * len)) * node.weight); //original source
 //					double factor = box.getK2() * Math.log10(node.weight);
-					double factor = box.getK2() * node.weight;
+//					double factor = box.getK2() * Math.sqrt(node.weight);
+//					double factor = box.getK2() * node.weight;
 
 					energies.accumulateEnergy(factor); // TODO check this
 					delta.scalarMult(-factor);
