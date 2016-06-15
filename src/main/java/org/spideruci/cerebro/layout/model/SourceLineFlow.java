@@ -9,7 +9,7 @@ public class SourceLineFlow {
 
   public static SourceLineFlow flow(SourceLineNode start, 
       SourceLineNode end, double weight) {
-    SourceLineFlow flow = new SourceLineFlow(start.id, end.id, 
+    SourceLineFlow flow = new SourceLineFlow(start.id(), end.id(), 
         start.x, start.y, end.x, end.y, weight);
     return flow;
   }

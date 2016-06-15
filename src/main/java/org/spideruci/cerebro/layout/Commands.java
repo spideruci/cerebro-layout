@@ -16,6 +16,7 @@ public enum Commands {
   COLOR_BY_METHOD,
   COLOR_BY_CLASS,
   REMOVE_COLOR,
+  FIND_START_NODE,
   DONE,
   HELP;
 
@@ -80,6 +81,9 @@ public enum Commands {
       case COLOR_BY_CLASS:
         display.colorNodesByClass();
         break;
+      case FIND_START_NODE:
+    	  display.setStartNode();
+    	  break;
       case HELP:
         System.out.println(Commands.mainMenu);
         break;

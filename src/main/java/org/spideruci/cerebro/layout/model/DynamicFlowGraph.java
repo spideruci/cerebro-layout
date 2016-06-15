@@ -50,7 +50,7 @@ public class DynamicFlowGraph {
       classCodes.add(className);
     }
 
-    String methodName = className + "." + lineNode.methodName;
+    String methodName = className + "." + lineNode.methodName();
     int methodCode = methodCodes.indexOf(methodName);
     if(methodCode == -1) {
       methodCodes.add(methodName);
@@ -69,13 +69,13 @@ public class DynamicFlowGraph {
       id = id + 1;
     }
     
-    String className = node.className;
+    String className = node.className();
     int classCode = classCodes.indexOf(className);
     if(classCode == -1) {
       classCodes.add(className);
     }
 
-    String methodName = className + "." + node.methodName;
+    String methodName = className + "." + node.methodName();
     int methodCode = methodCodes.indexOf(methodName);
     if(methodCode == -1) {
       methodCodes.add(methodName);
