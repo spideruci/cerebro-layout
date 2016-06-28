@@ -1,9 +1,14 @@
 package org.spideruci.cerebro.layout;
 
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -24,6 +29,8 @@ import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 import org.graphstream.ui.swingViewer.ViewerPipe;
+import org.spideruci.cerebro.db.DatabaseReader;
+import org.spideruci.cerebro.db.SQLiteDB;
 import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
 import org.spideruci.cerebro.layout.model.SourceLineNode;
 
@@ -203,6 +210,7 @@ public class DynamicDisplay {
 			int toId = Integer.parseInt(to.toString());
 			int count = displayedGraph.getEdgeCount(fromId, toId);
 			double weight = (maxCount - count)/maxCount;
+			//			double weight = count;
 			edge.addAttribute("layout.weight", weight);
 		}
 	}
@@ -355,7 +363,108 @@ public class DynamicDisplay {
 		node.setAttribute("ui.style",
 				String.format("shape: %s; fill-color: %s;", "diamond", "white"));
 
-//		n.addAttribute("ui.style", "size: 10px, 10px; shape: diamond; fill-color: blue;");
+		//		n.addAttribute("ui.style", "size: 10px, 10px; shape: diamond; fill-color: blue;");
+	}
+
+	public void colorNodesBySuspiciousness() {
+
+		Map<Integer, Double> suspicious = new HashMap<>();
+		Map<Integer, Double> confidence = new HashMap<>();
+		Map<Integer, Map<Integer, Integer>> stmt = new LinkedHashMap<>();
+		Map<String, Integer> source = new HashMap<>();
+		
+	    Scanner in = new Scanner(System.in);
+	    System.out.print("Please enter the path to a database file : ");
+	    String path = in.nextLine();      
+	    
+		if(path.isEmpty()){
+			return;
+		}
+		
+		SQLiteDB sqliteDB = new SQLiteDB();		
+		sqliteDB.open(path);
+
+		DatabaseReader dr = sqliteDB.runDatabaseReader();
+		dr.getSTMT();
+		dr.getSource();
+		dr.getSuspicious();
+		dr.getConfidence();
+
+		stmt = dr.getStmtMap();
+		suspicious = dr.getSuspiciousMap();
+		confidence = dr.getConfidenceMap();
+		source = dr.getSourceMap();
+		
+		for(Node node : graph.getEachNode()) {
+			System.out.println("here");
+			int nodeId = Integer.valueOf(node.getId());
+			SourceLineNode n = displayedGraph.getNode(nodeId);
+
+			String className = n.className();
+			int lineNum = n.lineNum();
+			
+			className = className.replaceAll("/", ".");
+			
+			int sourceId = source.get(className);
+			
+			System.out.println("here2");
+			
+			double suspiciousValue;
+			double confidenceValue;
+			
+			if(stmt.get(sourceId).get(lineNum) == null){
+				
+				System.out.println("          "+sourceId + " " + lineNum);
+				
+				suspiciousValue = 0.0;
+				confidenceValue = 1.0;
+				System.out.println("here3");
+
+			}
+			else{
+				int stmtId = stmt.get(sourceId).get(lineNum);
+
+				suspiciousValue = suspicious.get(stmtId);
+
+				confidenceValue = confidence.get(stmtId);
+				System.out.println("here3");
+
+			}
+			
+
+			
+			String color = ColorPalette.generateSuspiciousnessColor(suspiciousValue, confidenceValue);
+			String colorStyle = "fill-color: " + color + ";";
+			node.setAttribute("ui.style", colorStyle);	
+
+			//		double age = suspicious.get(stmtId);
+			////		int colorDegree = displayedGraph.colorCode(nodeId);
+			////		double age = (maxColorDegree - colorDegree) / maxColorDegree;
+			//		node.setAttribute("ui.color", age);
+			//		ColorHash.put(displayedGraph.getNode(nodeId).className(), age);
+			//		size++;
+		}
+
+		// TODO Auto-generated method stub
+		//		int methodCodeCount = displayedGraph.methodCodeCount();
+		//		String[] palette = ColorPalette.generatePalette(methodCodeCount);
+		//
+		//		for(Node node : graph.getEachNode()) {
+		//			int nodeId = Integer.valueOf(node.getId());
+		//			int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
+		//
+		//			if(colorIndex <= -1) {
+		//				continue;
+		//			}
+		//
+		//			Preconditions.checkNotNull(palette);
+		//			Preconditions.checkElementIndex(colorIndex, palette.length);
+		//			String color = palette[colorIndex % palette.length];
+		//			String colorStyle = "fill-color: " + color + ";";
+		//			node.setAttribute("ui.style", colorStyle);		
+		//			}
+
+
 	}
 
 }

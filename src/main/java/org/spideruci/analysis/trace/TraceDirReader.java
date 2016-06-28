@@ -80,6 +80,9 @@ public class TraceDirReader {
         int lineNumber = traceReader.getExecutedEventSourceLine(event);
         String threadId = event.getExecThreadId();
         
+        if(ownerClass.contains("org/spideruci/tacoco"))
+        	continue;
+        
         SourceLineNode node = new SourceLineNode(ownerClass, ownerMethod, lineNumber);
         
         node = dynamicFlowGraph.addNode(node);
