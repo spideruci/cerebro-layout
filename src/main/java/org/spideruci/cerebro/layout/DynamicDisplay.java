@@ -1,6 +1,5 @@
 package org.spideruci.cerebro.layout;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -95,7 +94,7 @@ public class DynamicDisplay {
 	public void clear() {
 		this.graph.clear();
 	}
-
+	
 	public synchronized void showDependence(int from, int to) {
 		showDependence(String.valueOf(from), String.valueOf(to), Double.NaN);
 	}
