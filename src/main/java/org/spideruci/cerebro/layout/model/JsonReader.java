@@ -58,30 +58,11 @@ public class JsonReader {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		System.out.println(dynamicFlowGraph.getNode(1).methodName());
 		
-//		computeDisplay();
 		
 		return dynamicFlowGraph;
 	}
 	
-	public DynamicDisplay computeDisplay(){
-		
-		DynamicDisplay display = init(DEFAULT_TITLE, dynamicFlowGraph);
 
-		Graph graph = display.getGraph();
-		
-		for(LineNode ln: gi.getNodes()){
-			
-			Node node = graph.getNode(ln.getId());
-			node.setAttribute("x", ln.getX());
-			node.setAttribute("y", ln.getY());
-		}
-
-		return display;
-		
-	}
-	
 
 }
