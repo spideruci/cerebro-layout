@@ -38,7 +38,6 @@ public class JsonReader {
 				SourceLineNode node = new SourceLineNode(ln.getClassName(), ln.getMethodName(), ln.getLineNum());
 				node.initXY(ln.getX(), ln.getY());
 				node = dynamicFlowGraph.addNode(node);		
-				System.out.println(ln.getId() + " x: " + node.x + " y: " + node.y + " added");
 			}
 
 			for(EdgeLink el: gi.getLinks()){
