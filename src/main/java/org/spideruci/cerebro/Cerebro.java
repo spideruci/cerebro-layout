@@ -11,6 +11,7 @@ import org.spideruci.analysis.trace.MethodTraceDirReader;
 import org.spideruci.analysis.trace.TraceDirReader;
 import org.spideruci.cerebro.community.JungCommunityComputer;
 import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
+import org.spideruci.cerebro.layout.model.JsonReader;
 import org.spideruci.cerebro.layout.model.RossalExecCsvReader;
 import org.spideruci.cerebro.layout.model.SdgReader;
 
@@ -63,6 +64,9 @@ public class Cerebro {
       dynamicFlowGraph = new RossalExecCsvReader().read(new File(args[0]));
     } else if(args[0].endsWith(".sdg")) {
       dynamicFlowGraph = new SdgReader().read(new File(args[0]));
+    } else if(args[0].endsWith("springbox.json")) {
+      dynamicFlowGraph = new JsonReader().read(new File(args[0]));
+      dynamicFlowGraph.cluster = true;
     } else {
       String tracePath = args[0];
       File[] files = TraceDirReader.getFiles(args[0]);
