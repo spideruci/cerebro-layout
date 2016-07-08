@@ -247,12 +247,16 @@ public class DynamicDisplay {
 	}
 
 	public void colorNodesByMethod() {
-		int methodCodeCount = displayedGraph.methodCodeCount();
+		int methodCodeCount = displayedGraph.methodCodeCount();		
+		
+//		System.out.println(methodCodeCount);
+		
 		String[] palette = ColorPalette.generatePalette(methodCodeCount);
-
 		for(Node node : graph.getEachNode()) {
 			int nodeId = Integer.valueOf(node.getId());
 			int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
+			
+//			System.out.println(palette.length + "      " + colorIndex);
 
 			if(colorIndex <= -1) {
 				continue;
@@ -263,16 +267,30 @@ public class DynamicDisplay {
 	}
 
 	private void colorNode(String[] palette, int colorIndex, Node node) {
+		if(displayedGraph.suspiciousness)
+			displayedGraph.suspiciousness = false;
+		
 		Preconditions.checkNotNull(palette);
-		Preconditions.checkElementIndex(colorIndex, palette.length);
+//		Preconditions.checkElementIndex(colorIndex, palette.length);
 		String color = palette[colorIndex % palette.length];
 		String colorStyle = "fill-color: " + color + ";";
 		node.setAttribute("ui.style", colorStyle);
+		
+		int nodeId = Integer.valueOf(node.getId());
+		SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
+		sourceNode.setColorString(color);
+
 	}
 
 	public void decolorNodes() {
+		if(displayedGraph.suspiciousness)
+			displayedGraph.suspiciousness = false;
+		
 		for(Node node : graph.getEachNode()) {
 			node.setAttribute("ui.style", "fill-color:lightyellow;");
+			int nodeId = Integer.valueOf(node.getId());
+			SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
+			sourceNode.setColorString("lightyellow");
 		}
 	}
 
@@ -395,74 +413,42 @@ public class DynamicDisplay {
 		source = dr.getSourceMap();
 		
 		for(Node node : graph.getEachNode()) {
-			System.out.println("here");
 			int nodeId = Integer.valueOf(node.getId());
-			SourceLineNode n = displayedGraph.getNode(nodeId);
+			SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
 
-			String className = n.className();
-			int lineNum = n.lineNum();
+			String className = sourceNode.className();
+			int lineNum = sourceNode.lineNum();
 			
 			className = className.replaceAll("/", ".");
 			
 			int sourceId = source.get(className);
-			
-			System.out.println("here2");
-			
+						
 			double suspiciousValue;
 			double confidenceValue;
 			
 			if(stmt.get(sourceId).get(lineNum) == null){
 				
-				System.out.println("          "+sourceId + " " + lineNum);
-				
 				suspiciousValue = 0.0;
 				confidenceValue = 1.0;
-				System.out.println("here3");
 
 			}
 			else{
 				int stmtId = stmt.get(sourceId).get(lineNum);
-
 				suspiciousValue = suspicious.get(stmtId);
-
 				confidenceValue = confidence.get(stmtId);
-				System.out.println("here3");
-
 			}
-			
 
-			
 			String color = ColorPalette.generateSuspiciousnessColor(suspiciousValue, confidenceValue);
 			String colorStyle = "fill-color: " + color + ";";
 			node.setAttribute("ui.style", colorStyle);	
+			
+			sourceNode.setSuspiciousness(suspiciousValue);
+			sourceNode.setConfidence(confidenceValue);
+			sourceNode.setColorString(color);
 
-			//		double age = suspicious.get(stmtId);
-			////		int colorDegree = displayedGraph.colorCode(nodeId);
-			////		double age = (maxColorDegree - colorDegree) / maxColorDegree;
-			//		node.setAttribute("ui.color", age);
-			//		ColorHash.put(displayedGraph.getNode(nodeId).className(), age);
-			//		size++;
 		}
-
-		// TODO Auto-generated method stub
-		//		int methodCodeCount = displayedGraph.methodCodeCount();
-		//		String[] palette = ColorPalette.generatePalette(methodCodeCount);
-		//
-		//		for(Node node : graph.getEachNode()) {
-		//			int nodeId = Integer.valueOf(node.getId());
-		//			int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
-		//
-		//			if(colorIndex <= -1) {
-		//				continue;
-		//			}
-		//
-		//			Preconditions.checkNotNull(palette);
-		//			Preconditions.checkElementIndex(colorIndex, palette.length);
-		//			String color = palette[colorIndex % palette.length];
-		//			String colorStyle = "fill-color: " + color + ";";
-		//			node.setAttribute("ui.style", colorStyle);		
-		//			}
-
+		
+		displayedGraph.suspiciousness = true;
 
 	}
 

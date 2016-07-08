@@ -211,7 +211,14 @@ public class ViewerEventListener extends DefaultMouseManager implements ViewerLi
 		String nodeId = id;
 		try {
 			SourceLineNode node = displayedGraph.getNode(Integer.parseInt(nodeId));
-			System.out.println(node.toString());
+			System.out.print(node.toString() + " Color: " + node.getColorString());
+			
+			if(displayedGraph.suspiciousness){
+				System.out.print("   Suspiciousness: " + node.getSuspiciousness() + " Confidence: " + node.getConfidence());
+			}
+			
+			System.out.println();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("OKAY! Something went wrong." +

@@ -75,8 +75,6 @@ public class ColorPalette {
 		double hue = (1f - power) * 120;
 		double saturation = 1;
 		double brightness = confidence;
-
-		System.out.println(hue);
 		
 		Color color = hsb(hue, saturation, brightness);
 

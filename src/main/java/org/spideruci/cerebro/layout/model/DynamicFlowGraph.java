@@ -20,6 +20,8 @@ public class DynamicFlowGraph {
   private int clusterCount;
   private final ArrayList<FlowIdent> flows;
   public boolean cluster = false;
+  public boolean suspiciousness = false;
+
 
   public DynamicFlowGraph() {
     edges = HashBasedTable.create();
