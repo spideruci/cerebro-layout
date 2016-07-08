@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.graphstream.ui.layout.springbox.BarnesHutLayout;
 import org.spideruci.analysis.trace.MethodTraceDirReader;
 import org.spideruci.analysis.trace.TraceDirReader;
+import org.spideruci.analysis.trace.io.TraceData;
 import org.spideruci.cerebro.community.JungCommunityComputer;
 import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
 import org.spideruci.cerebro.layout.model.JsonReader;
@@ -69,6 +70,7 @@ public class Cerebro {
       dynamicFlowGraph.cluster = true;
     } else {
       String tracePath = args[0];
+      TraceData traceData = new TraceData();
       File[] files = TraceDirReader.getFiles(args[0]);
       dynamicFlowGraph = TraceDirReader.scanTraceFiles(files, tracePath);
 //      dynamicFlowGraph = MethodTraceDirReader.scanTraceFiles(files, tracePath);
