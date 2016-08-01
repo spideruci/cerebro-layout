@@ -14,7 +14,12 @@ import org.miv.pherd.geom.Point3;
 public class NewSpringBoxNodeParticle extends SpringBoxNodeParticle {
 
 	public static enum F_CONFIG{
-		A, B, C, D, E
+		A, 
+		B, 
+		C, 
+		D, 
+		E,
+		F
 	}
 	
 	F_CONFIG fValue = F_CONFIG.A;
@@ -26,6 +31,7 @@ public class NewSpringBoxNodeParticle extends SpringBoxNodeParticle {
 
 	public NewSpringBoxNodeParticle(SpringBox box, String id, double x, double y, double z) {
 		super(box, id, x, y, z);
+		
 	}
 
 	@Override
@@ -56,13 +62,16 @@ public class NewSpringBoxNodeParticle extends SpringBoxNodeParticle {
 						factor = box.getK1() * (len - ideal_len) * edge.weight;
 						break;
 					case C:
-						factor = box.getK1() * Math.log(len / (ideal_len * edge.weight));
+						factor = box.getK1() * Math.log1p(len / (ideal_len * edge.weight));
 						break;
 					case D:
-						factor = box.getK1() * Math.log((ideal_len * edge.weight) / len);
+						factor = box.getK1() * Math.log1p((ideal_len * edge.weight) / len);
 						break;
 					case E:
 						factor = box.getK1() * edge.weight;
+						break;
+					case F:
+						factor = box.getK1() * edge.weight * Math.log1p(len / (ideal_len));
 						break;
 					default:
 						factor = 0;
