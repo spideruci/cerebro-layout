@@ -12,12 +12,16 @@ public enum Commands {
 	SHOW_EDGES,
 	EXPAND_NODES,
 	SHRINK_NODES,
+	RESTORE_NODES,
 	CLUSTER,
 	COLOR_BY_METHOD,
 	COLOR_BY_CLASS,
 	COLOR_BY_SUSPICIOUSNESS,
+	COLOR_BY_LAST_AUTHOR,
+	COLOR_BY_AUTHOR,
 	REMOVE_COLOR,
 	FIND_START_NODE,
+	SORT_NODES,
 	DONE,
 	HELP;
 
@@ -70,6 +74,10 @@ public enum Commands {
 		case SHRINK_NODES:
 			display.shrinkNodes();
 			break;
+		case RESTORE_NODES:
+			display.restoreSize();
+			display.decolorNodes();
+			break;
 		case CLUSTER:
 			display.colorNodes();
 			break;
@@ -85,8 +93,17 @@ public enum Commands {
 		case COLOR_BY_SUSPICIOUSNESS:
 			display.colorNodesBySuspiciousness();
 			break;
+		case COLOR_BY_LAST_AUTHOR:
+			display.colorNodesByLastAuthor();
+			break;
+		case COLOR_BY_AUTHOR:
+			display.colorNodesByAuthor();
+			break;
 		case FIND_START_NODE:
 			display.setStartNode();
+			break;
+		case SORT_NODES:
+			display.sortNodes();
 			break;
 		case HELP:
 			System.out.println(Commands.mainMenu);

@@ -209,12 +209,18 @@ public class ViewerEventListener extends DefaultMouseManager implements ViewerLi
 	@Override
 	public void buttonPushed(String id) { 
 		String nodeId = id;
+		
+		System.out.println(nodeId);
 		try {
 			SourceLineNode node = displayedGraph.getNode(Integer.parseInt(nodeId));
-			System.out.print(node.toString() + " Color: " + node.getColorString());
+			System.out.print(node.toString() + "   Color: " + node.getColorString());
 			
 			if(displayedGraph.suspiciousness){
-				System.out.print("   Suspiciousness: " + node.getSuspiciousness() + " Confidence: " + node.getConfidence());
+				System.out.print("   Suspiciousness: " + node.getSuspiciousness() + "   Confidence: " + node.getConfidence());
+			}
+			
+			if (displayedGraph.author) {
+				System.out.print("   Author: " + node.getAuthor());
 			}
 			
 			System.out.println();

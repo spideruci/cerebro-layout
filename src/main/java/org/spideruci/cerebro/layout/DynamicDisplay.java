@@ -3,9 +3,12 @@ package org.spideruci.cerebro.layout;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedSet;
@@ -94,7 +97,7 @@ public class DynamicDisplay {
 	public void clear() {
 		this.graph.clear();
 	}
-	
+
 	public synchronized void showDependence(int from, int to) {
 		showDependence(String.valueOf(from), String.valueOf(to), Double.NaN);
 	}
@@ -248,15 +251,15 @@ public class DynamicDisplay {
 
 	public void colorNodesByMethod() {
 		int methodCodeCount = displayedGraph.methodCodeCount();		
-		
-//		System.out.println(methodCodeCount);
-		
+
+		//		System.out.println(methodCodeCount);
+
 		String[] palette = ColorPalette.generatePalette(methodCodeCount);
 		for(Node node : graph.getEachNode()) {
 			int nodeId = Integer.valueOf(node.getId());
 			int colorIndex = displayedGraph.getNodeMethodCode(nodeId);
-			
-//			System.out.println(palette.length + "      " + colorIndex);
+
+			//			System.out.println(palette.length + "      " + colorIndex);
 
 			if(colorIndex <= -1) {
 				continue;
@@ -269,32 +272,31 @@ public class DynamicDisplay {
 	private void colorNode(String[] palette, int colorIndex, Node node) {
 		if(displayedGraph.suspiciousness)
 			displayedGraph.suspiciousness = false;
-		
+
 		Preconditions.checkNotNull(palette);
-//		Preconditions.checkElementIndex(colorIndex, palette.length);
+		//		Preconditions.checkElementIndex(colorIndex, palette.length);
 		String color = palette[colorIndex % palette.length];
-		String colorStyle = "fill-color: " + color + ";";
-		node.setAttribute("ui.style", colorStyle);
-		
-		int nodeId = Integer.valueOf(node.getId());
-		SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
-		sourceNode.setColorString(color);
+		changeColor(node, color);
 
 	}
 
 	public void decolorNodes() {
 		if(displayedGraph.suspiciousness)
 			displayedGraph.suspiciousness = false;
-		
+
 		for(Node node : graph.getEachNode()) {
-			node.setAttribute("ui.style", "fill-color:lightyellow;");
-			int nodeId = Integer.valueOf(node.getId());
-			SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
-			sourceNode.setColorString("lightyellow");
+			changeColor(node, "lightyellow");
+		}
+	}
+	
+	private int nodeSize = 4;
+	
+	public void restoreSize() {
+		for(Node node : graph.getEachNode()) {
+			node.setAttribute("ui.style", "size: 4px;");
 		}
 	}
 
-	private int nodeSize = 4;
 
 	public void expandNodes() {
 		if(nodeSize < 20) {
@@ -377,10 +379,7 @@ public class DynamicDisplay {
 
 	public void setStartNode(){
 		Node node = graph.getNode(0);
-		node.setAttribute("ui.style",
-				String.format("shape: %s; fill-color: %s;", "diamond", "white"));
-
-		//		n.addAttribute("ui.style", "size: 10px, 10px; shape: diamond; fill-color: blue;");
+		changeColor(node, "purple");
 	}
 
 	public void colorNodesBySuspiciousness() {
@@ -389,15 +388,15 @@ public class DynamicDisplay {
 		Map<Integer, Double> confidence = new HashMap<>();
 		Map<Integer, Map<Integer, Integer>> stmt = new LinkedHashMap<>();
 		Map<String, Integer> source = new HashMap<>();
-		
-	    Scanner in = new Scanner(System.in);
-	    System.out.print("Please enter the path to a database file : ");
-	    String path = in.nextLine();      
-	    
+
+		Scanner in = new Scanner(System.in);
+		System.out.print("Please enter the path to a database file : ");
+		String path = in.nextLine();      
+
 		if(path.isEmpty()){
 			return;
 		}
-		
+
 		SQLiteDB sqliteDB = new SQLiteDB();		
 		sqliteDB.open(path);
 
@@ -411,26 +410,24 @@ public class DynamicDisplay {
 		suspicious = dr.getSuspiciousMap();
 		confidence = dr.getConfidenceMap();
 		source = dr.getSourceMap();
-		
+
 		for(Node node : graph.getEachNode()) {
 			int nodeId = Integer.valueOf(node.getId());
 			SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
 
 			String className = sourceNode.className();
 			int lineNum = sourceNode.lineNum();
-			
+
 			className = className.replaceAll("/", ".");
-			
+
 			int sourceId = source.get(className);
-						
+
 			double suspiciousValue;
 			double confidenceValue;
-			
+
 			if(stmt.get(sourceId).get(lineNum) == null){
-				
 				suspiciousValue = 0.0;
 				confidenceValue = 1.0;
-
 			}
 			else{
 				int stmtId = stmt.get(sourceId).get(lineNum);
@@ -439,17 +436,248 @@ public class DynamicDisplay {
 			}
 
 			String color = ColorPalette.generateSuspiciousnessColor(suspiciousValue, confidenceValue);
-			String colorStyle = "fill-color: " + color + ";";
-			node.setAttribute("ui.style", colorStyle);	
 			
+			changeColor(node, color);
+
 			sourceNode.setSuspiciousness(suspiciousValue);
 			sourceNode.setConfidence(confidenceValue);
 			sourceNode.setColorString(color);
 
 		}
-		
+
 		displayedGraph.suspiciousness = true;
 
 	}
+
+	public void colorNodesByLastAuthor() {
+		Map<Integer, Map<Integer, String>> author = new LinkedHashMap<>();
+		Map<String, Integer> source = new HashMap<>();
+
+		List<String> authorList;
+
+		Scanner in = new Scanner(System.in);
+		System.out.print("Please enter the path to a database file : ");
+		String path = in.nextLine();      
+
+		if(path.isEmpty()){
+			return;
+		}
+
+		SQLiteDB sqliteDB = new SQLiteDB();		
+		sqliteDB.open(path);
+
+		DatabaseReader dr = sqliteDB.runDatabaseReader();
+		dr.getSource();
+		dr.getSourceLineAuthor();
+		dr.getAuthor();
+
+		author = dr.getAuthorMap();
+		source = dr.getSourceMap();
+
+		authorList = dr.getAuthorList();
+		Collections.shuffle(authorList);
+
+		int authorCount = dr.getAuthorCount();
+
+		String[] palette = ColorPalette.generatePalette(authorCount);
+
+		Map<String, Integer> authorColorMap = new HashMap<>();
+
+		int i = 0;
+		for(String s: authorList){
+			authorColorMap.put(s, i);
+			i++;
+		}
+
+		//		System.out.println(authorColorMap.size());
+
+		for(Node node : graph.getEachNode()) {
+
+			int nodeId = Integer.valueOf(node.getId());
+
+			SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
+
+			String className = sourceNode.className();
+			int lineNum = sourceNode.lineNum();
+
+			className = className.replaceAll("/", ".");
+
+			int sourceId = source.get(className);
+			//			System.out.println(className + " " + sourceId + " " + lineNum);
+			String name = author.get(sourceId).get(lineNum);
+
+			if(author.get(sourceId).get(lineNum) == null){
+				System.out.println(sourceId + " " + lineNum);
+				continue;
+			}
+
+			int color = authorList.indexOf(name);
+
+			colorNode(palette, color, node);
+
+			sourceNode.setAuthor(name);
+		}
+
+		displayedGraph.author = true;
+	}
+
+	public void colorNodesByAuthor() {
+		Map<Integer, Map<Integer, String>> author = new LinkedHashMap<>();
+		Map<String, Integer> source = new HashMap<>();
+		Map<Integer, List<Integer>> sourceLine = new HashMap<>();
+		final int included = 1;
+		final int excluded = 0;
+
+		List<String> authorList;
+
+		Scanner in = new Scanner(System.in);
+		System.out.print("Please enter the path to a database file : ");
+		String path = in.nextLine();      
+
+		if(path.isEmpty()){
+			return;
+		}
+
+		SQLiteDB sqliteDB = new SQLiteDB();		
+		sqliteDB.open(path);
+
+		DatabaseReader dr = sqliteDB.runDatabaseReader();
+		dr.getSource();
+		dr.getSourceLineAuthor();
+		dr.getAuthor();
+
+		author = dr.getAuthorMap();
+		source = dr.getSourceMap();
+
+		authorList = dr.getAuthorList();
+
+		int i = 1;
+		
+		System.out.println("=========================================");
+
+		for(String s: authorList){
+			System.out.print(s);
+			System.out.print(i % 5 == 0 ? "\n": "   ");
+			i++;
+		}
+
+		System.out.println();
+		System.out.println();
+		System.out.print("Please select and enter the author name from above: ");
+		String authorName = in.nextLine();      
+
+		while(!authorName.isEmpty()){
+
+			String[] palette = ColorPalette.generateAuthorColor();
+
+			sourceLine = dr.getSourceLineByAuthor(authorName);
+
+			int count = 0;
+			
+			for(Node node : graph.getEachNode())
+			{
+
+				int nodeId = Integer.valueOf(node.getId());
+
+				SourceLineNode sourceNode = displayedGraph.getNode(nodeId);
+
+				String className = sourceNode.className();
+				int lineNum = sourceNode.lineNum();
+
+				className = className.replaceAll("/", ".");
+
+				int sourceId = source.get(className);
+				//			System.out.println(className + " " + sourceId + " " + lineNum);
+
+				if(sourceLine.get(sourceId) == null || !sourceLine.get(sourceId).contains(lineNum))
+					colorNode(palette, excluded, node);
+				else{
+					colorNode(palette, included, node);
+					count++;
+				}
+			}
+			System.out.println(count);
+			
+			System.out.print("Please select and enter the author name from above: ");
+
+			authorName = in.nextLine();      
+
+		}
+
+	}
+	
+	
+	public void sortNodes(){
+		List<String> files = new ArrayList<String>();
+		
+		Scanner in = new Scanner(System.in);
+
+		System.out.print("Please enter the node id: (node id starts from 1)");
+		
+		if(!in.hasNextInt()){
+			System.out.println("The input is invalid!!!");
+			return;
+		}
+		
+		String nodeId = in.nextLine();
+			
+		Node rootNode = graph.getNode(nodeId);
+		rootNode.setAttribute("ui.style", String.format("size: %spx; shape: %s;", "6","diamond"));
+		changeColor(rootNode, "red");
+		
+		int rootNodeId = Integer.parseInt(rootNode.getId());
+		SourceLineNode sourceNode = displayedGraph.getNode(rootNodeId);
+		files.add(sourceNode.className());
+		
+		Iterator<Node> sortedNodes = rootNode.getBreadthFirstIterator();
+		sortedNodes.next();
+		
+//		for(int i = 0; i < 10; i++){
+		for(int i = 0; files.size() < 10; i++){
+			Node nodeNext = sortedNodes.next();
+
+			changeColor(nodeNext, "blue");
+			
+			int nodeNextId = Integer.parseInt(nodeNext.getId());
+			
+			SourceLineNode nodeNextLine = displayedGraph.getNode(nodeNextId);
+						
+			if(!files.contains(nodeNextLine.className()))
+					files.add(nodeNextLine.className());
+
+			System.out.println(nodeNextLine.id() + " "+ nodeNextLine.className() + "   " + nodeNextLine.methodName() + "    " + nodeNextLine.lineNum());
+			
+		}
+		System.out.println();
+		
+		for(String s: files)
+			System.out.println(s);
+		
+//		Iterator<Node> closeNodes = node.getDepthFirstIterator();
+//		
+//		for(int i = 0; i < 10; i++){
+//			Node node2 = closeNodes.next();
+//			int index = node2.getIndex();
+//			
+//			node2.setAttribute("ui.style", String.format("fill-color: %s;", "green"));
+//			System.out.println(index);
+//			SourceLineNode temp = displayedGraph.getNode(index);
+//			System.out.println(temp.className() + "   " + temp.methodName() + "    " + temp.lineNum());
+//			System.out.println("---------------------------");
+//		}
+		
+
+	}
+	
+	
+	protected void changeColor(Node node, String color){
+		node.setAttribute("ui.style", String.format("fill-color: %s;", color));
+		
+		SourceLineNode sln = displayedGraph.getNode(Integer.parseInt(node.getId()));
+		
+		sln.setColorString(color);
+
+	}
+	
 
 }

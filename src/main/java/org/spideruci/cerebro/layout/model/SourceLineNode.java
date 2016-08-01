@@ -19,6 +19,7 @@ public class SourceLineNode implements Clusterable {
   private double confidence;
 //  private Color color;
   private String colorString;
+  private String author;
   
   public SourceLineNode(String ownerClass, String ownerMethod, int line) {
     this.className = ownerClass;
@@ -170,6 +171,13 @@ public class SourceLineNode implements Clusterable {
 	  this.confidence = confidence;
   }
   
+  public String getAuthor(){
+	  return author;
+  }
+  
+  public void setAuthor(String author){
+	  this.author = author;
+  }
 //  public Color getColor(){
 //	  return color;
 //  }

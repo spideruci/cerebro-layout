@@ -21,6 +21,7 @@ public class DynamicFlowGraph {
   private final ArrayList<FlowIdent> flows;
   public boolean cluster = false;
   public boolean suspiciousness = false;
+  public boolean author = false;
 
 
   public DynamicFlowGraph() {
