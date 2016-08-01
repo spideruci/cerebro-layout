@@ -55,5 +55,10 @@ public class SQLiteDB {
 		return dr;
 	}
 	
+	public DatabaseWriter runDatabaseWriter(){
+		DatabaseWriter dw = new DatabaseWriter(c);
+		
+		return dw;
+	}
 
 }
