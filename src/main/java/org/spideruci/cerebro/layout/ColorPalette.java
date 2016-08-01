@@ -82,6 +82,14 @@ public class ColorPalette {
 
 		return colorString;
 	}
+	
+	public static String[] generateAuthorColor(){
+		// grey #c0c0c0
+		// red #ff0000
+		String[] colorStrings = {"#636363", "#ff0000"};
+		
+		return colorStrings;
+	}
 
 
 	private static Color hsb(double hue, double saturation, double brightness) {
