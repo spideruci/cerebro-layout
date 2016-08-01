@@ -1,6 +1,8 @@
 package org.spideruci.cerebro.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 public class LineNode {
 
@@ -15,6 +17,12 @@ public class LineNode {
 	private double x;
 	private double y;
 	private String community;
+	
+	public double suspiciousness;
+	public double confidence;
+	//  private Color color;
+	public String colorString;
+	public String author;
 	
 	public LineNode() {
 		// TODO Auto-generated constructor stub

@@ -14,6 +14,8 @@ import org.spideruci.cerebro.json.LineNode;
 import org.spideruci.cerebro.layout.DynamicDisplay;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,7 +30,9 @@ public class JsonReader {
 
 	public DynamicFlowGraph read(File file) {
 		ObjectMapper objectMapper = new ObjectMapper();
-
+		//why???
+		objectMapper.enable(Feature.ALLOW_NON_NUMERIC_NUMBERS);
+		
 		dynamicFlowGraph = new DynamicFlowGraph();
 
 		try {
