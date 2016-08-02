@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.spideruci.analysis.trace.io.TraceReader;
@@ -40,6 +41,7 @@ public class TraceDirReader {
           System.out.println("Adding file: " + fl.toString());
         }
       }
+      Collections.sort(fs);
       files = fs.toArray(new File[fs.size()]);
       return files;
     }
@@ -79,6 +81,9 @@ public class TraceDirReader {
         String ownerMethod = traceReader.getExecutedEventOwnerMethod(event);
         int lineNumber = traceReader.getExecutedEventSourceLine(event);
         String threadId = event.getExecThreadId();
+        
+        if(ownerClass.contains("org/spideruci/tacoco"))
+        	continue;
         
         SourceLineNode node = new SourceLineNode(ownerClass, ownerMethod, lineNumber);
         

@@ -4,6 +4,8 @@ import org.apache.commons.math3.ml.clustering.Clusterable;
 
 import com.google.common.base.Preconditions;
 
+import javafx.scene.paint.Color;
+
 public class SourceLineNode implements Clusterable {
   private final String className;
   private final String methodName;
@@ -13,7 +15,12 @@ public class SourceLineNode implements Clusterable {
   public float x;
   public float y;
   private String community;
-
+  private double suspiciousness;
+  private double confidence;
+//  private Color color;
+  private String colorString;
+  private String author;
+  
   public SourceLineNode(String ownerClass, String ownerMethod, int line) {
     this.className = ownerClass;
     this.methodName = ownerMethod;
@@ -103,7 +110,7 @@ public class SourceLineNode implements Clusterable {
 
   @Override
   public String toString() {
-    return id + ":" + className + ":" + methodName + ":" + lineNum;
+    return "id: " + id + "   className:" + className + "   methodName:" + methodName + "   lineNum:" + lineNum;
   }
 
   public String toString(String sep) {
@@ -147,5 +154,48 @@ public class SourceLineNode implements Clusterable {
   public double[] getPoint() {
     return new double[] { x, y };
   }
-
+  
+  public double getSuspiciousness(){
+	  return suspiciousness;
+  }
+  
+  public void setSuspiciousness(double suspiciousness){
+	  this.suspiciousness = suspiciousness;
+  }
+  
+  public double getConfidence(){
+	  return confidence;
+  }
+  
+  public void setConfidence(double confidence){
+	  this.confidence = confidence;
+  }
+  
+  public String getAuthor(){
+	  return author;
+  }
+  
+  public void setAuthor(String author){
+	  this.author = author;
+  }
+//  public Color getColor(){
+//	  return color;
+//  }
+//  
+//  public String getColorToString(){
+//	  return color.toString();
+//  }
+//  
+//  public void setColor(Color color){
+//	  this.color = color;
+//  }
+//  
+  public String getColorString(){
+	  return colorString;
+  }
+  
+  public void setColorString(String colorString){
+	  this.colorString = colorString;
+  }
+  
 }

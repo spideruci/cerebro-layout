@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.spideruci.analysis.trace.TraceEvent;
+import org.spideruci.cerebro.layout.DynamicDisplay;
 
 import com.cedarsoftware.util.io.JsonWriter;
 import com.google.common.collect.HashBasedTable;
@@ -18,6 +19,10 @@ public class DynamicFlowGraph {
   private final ArrayList<String> methodCodes;
   private int clusterCount;
   private final ArrayList<FlowIdent> flows;
+  public boolean cluster = false;
+  public boolean suspiciousness = false;
+  public boolean author = false;
+
 
   public DynamicFlowGraph() {
     edges = HashBasedTable.create();
@@ -27,7 +32,6 @@ public class DynamicFlowGraph {
     flows = new ArrayList<>();
     clusterCount = -1;
   }
-
 
   public SourceLineNode addNode(TraceEvent event) {
     String className = event.getExecInsnDynHost();
@@ -97,7 +101,7 @@ public class DynamicFlowGraph {
     } else {
       edges.put(fromId, toId, count);
     }
-  }
+  } 
 
   public void addFlows(FlowIdent ... idents) {
     for(FlowIdent i : idents) {
