@@ -84,7 +84,7 @@ public class TraceDirReader {
         
         node = dynamicFlowGraph.addNode(node);
         
-        spitJsonTrace(jsonTraceStream, node.id);
+        spitJsonTrace(jsonTraceStream, node.id());
         count += 1;
         SourceLineNode previous = threadedPrevious.get(threadId); 
         if(previous != null) {
@@ -102,7 +102,7 @@ public class TraceDirReader {
     return dynamicFlowGraph;
   }
   
-  private static void spitJsonTrace(PrintStream out, int nodeId) {
+  protected static void spitJsonTrace(PrintStream out, int nodeId) {
     out.print(nodeId + ",\n");
   }
   

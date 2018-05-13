@@ -355,6 +355,12 @@ public class DynamicDisplay {
           }
         }
       }
-
       
+      public void setStartNode() {
+        Node node = graph.getNode(0);
+        node.setAttribute("ui.style",
+            String.format("shape: %s; fill-color: %s;", "diamond", "white"));
+
+//        n.addAttribute("ui.style", "size: 10px, 10px; shape: diamond; fill-color: blue;");
+      }
 }
