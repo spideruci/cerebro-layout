@@ -50,7 +50,7 @@ public class Spine<G extends SimpleNode> {
   private BarnesHutLayout layoutComputer;
   private AbstractCommunityComputer communityComputer;
   
-  public static <G extends SimpleNode> Spine getInstance(SimpleGraph<G> flowGraph) {
+  public static <G extends SimpleNode> Spine<G> getInstance(SimpleGraph<G> flowGraph) {
     Spine<G> spine = new Spine<>(flowGraph, new MultiGraph("cerebro"));
     spine.graphicGraph.setStrict(false);
     spine.graphicGraph.setAutoCreate(true);
@@ -159,7 +159,7 @@ public class Spine<G extends SimpleNode> {
       }
     }
   
-  public Spine detectCommunities() {
+  public Spine<G> detectCommunities() {
     
     communityComputer.compute();
     communityComputer.assignCommunity();

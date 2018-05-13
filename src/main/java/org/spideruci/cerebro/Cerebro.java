@@ -13,6 +13,8 @@ import org.spideruci.cerebro.community.JungCommunityComputer;
 import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
 import org.spideruci.cerebro.layout.model.RossalExecCsvReader;
 import org.spideruci.cerebro.layout.model.SdgReader;
+import org.spideruci.cerebro.layout.model.SimpleGraph;
+import org.spideruci.cerebro.layout.model.SimpleNode;
 
 public class Cerebro {
   
@@ -26,10 +28,10 @@ public class Cerebro {
     analyzeDynamicFlow(subject, dynamicFlowGraph);
   }
 
-  public static void analyzeDynamicFlow(
-      final String subject, final DynamicFlowGraph dynamicFlowGraph) throws IOException {
+  public static <T extends SimpleNode> void analyzeDynamicFlow(
+      final String subject, final SimpleGraph<T> dynamicFlowGraph) throws IOException {
 
-    Spine spine = Spine.getInstance(dynamicFlowGraph);
+    Spine<T> spine = Spine.getInstance(dynamicFlowGraph);
     BarnesHutLayout layout = configLayout(getSpringBox());
 
     spine.setLayoutComputer(layout);
