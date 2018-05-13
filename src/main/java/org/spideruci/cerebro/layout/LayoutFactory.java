@@ -8,10 +8,14 @@ public class LayoutFactory {
   
   public static String layoutConfig = null;
   
-  public static SpringBox getSpringBox() {
-    SpringBox layout = new SpringBox();
+  public static SpringBox getSpringBox(boolean is3D) {
+    SpringBox layout = new SpringBox(is3D);
     layoutConfig = "-springbox";
     return layout;
+  }
+  
+  public static SpringBox getSpringBox() {
+    return getSpringBox(false);
   }
 
   public static LinLog getLinLog(double a, double r, double force) {

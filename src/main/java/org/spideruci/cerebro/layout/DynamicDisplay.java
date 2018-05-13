@@ -224,7 +224,7 @@ public class DynamicDisplay {
     }
 
   public void colorNodesByClass() {
-    int classCodeCount = displayedGraph.classCodeCount();
+    int classCodeCount = displayedGraph.classCodes.count();
     String[] palette = ColorPalette.generatePalette(classCodeCount);
 
     for(Node node : graph.getEachNode()) {
@@ -240,7 +240,7 @@ public class DynamicDisplay {
   }
 
   public void colorNodesByMethod() {
-      int methodCodeCount = displayedGraph.methodCodeCount();
+      int methodCodeCount = displayedGraph.methodCodes.count();
       String[] palette = ColorPalette.generatePalette(methodCodeCount);
 
       for(Node node : graph.getEachNode()) {
@@ -303,6 +303,12 @@ public class DynamicDisplay {
       for(Edge edge : graph.getEachEdge()) {
         edge.addAttribute("ui.hide");
       }
+    }
+    
+    public void highlightNode(String nodeId) {
+      Node node = graph.getNode(nodeId);
+      String green = "#00FF00"; // or any color of your choice
+      colorNode(new String[] { green }, 0, node);
     }
     
     public void pinNodesOnDynamicFlowGraph() {

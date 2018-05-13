@@ -212,7 +212,6 @@ public class ViewerEventListener extends DefaultMouseManager implements ViewerLi
     try {
       SourceLineNode node = displayedGraph.getNode(Integer.parseInt(nodeId));
       System.out.println(node.toString());
-      throw new Exception();
     } catch (Exception ex) {
       ex.printStackTrace();
       System.out.println("OKAY! Something went wrong." +
