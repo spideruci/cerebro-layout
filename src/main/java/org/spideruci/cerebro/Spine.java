@@ -24,13 +24,13 @@ import org.graphstream.ui.layout.springbox.BarnesHutLayout;
 
 import org.spideruci.cerebro.community.AbstractCommunityComputer;
 import org.spideruci.cerebro.layout.LayoutFactory;
-import org.spideruci.cerebro.layout.model.DynamicFlowGraph;
-import org.spideruci.cerebro.layout.model.SourceLineNode;
+import org.spideruci.cerebro.layout.model.SimpleGraph;
+import org.spideruci.cerebro.layout.model.SimpleNode;
 
 import com.google.common.collect.Table.Cell;
 
 /**
- * Spine is the pipleline that performs various computations such as layout, 
+ * Spine is the pipeline that performs various computations such as layout, 
  * clustering and community detection in the execution flow graph that it houses.
  * <br>
  * It is worth noting that this pipeline does not *implement*, nor does it
@@ -38,33 +38,33 @@ import com.google.common.collect.Table.Cell;
  * Instead it is merely an container for executing these computations in an 
  * order that is specified by the user of the instances of this class.
  * <br>
- * That said, the clusterComputer is specified on the {@code SourceLineNode} 
+ * That said, the clusterComputer is specified on the {@code SimpleNode} 
  * instances, and as such is necessarily formed after the layout computation.
  * @author vpalepu
  *
  */
-public class Spine {
-  private final DynamicFlowGraph flowGraph;
+public class Spine<G extends SimpleNode> {
+  private final SimpleGraph<G> graphModel;
   private final Graph graphicGraph;
   
   private BarnesHutLayout layoutComputer;
   private AbstractCommunityComputer communityComputer;
   
-  public static Spine getInstance(DynamicFlowGraph flowGraph) {
-    Spine spine = new Spine(flowGraph, new MultiGraph("cerebro"));
+  public static <G extends SimpleNode> Spine getInstance(SimpleGraph<G> flowGraph) {
+    Spine<G> spine = new Spine<>(flowGraph, new MultiGraph("cerebro"));
     spine.graphicGraph.setStrict(false);
     spine.graphicGraph.setAutoCreate(true);
     return spine;
   }
   
-  private Spine(DynamicFlowGraph flowGraph, Graph graphicGraph) {
-    this.flowGraph = flowGraph;
+  private Spine(SimpleGraph<G> flowGraph, Graph graphicGraph) {
+    this.graphModel = flowGraph;
     this.graphicGraph = graphicGraph;
   }
   
   public void initGraphicGraph() {
     int uniqId = 0;
-    for(Cell<Integer, Integer, Integer> edge : flowGraph.getEdges()) {
+    for(Cell<Integer, Integer, Integer> edge : graphModel.getEdges()) {
       double weight = edge.getValue();
       System.out.format("%s %s %s\n", edge.getRowKey(), edge.getColumnKey(), weight);
       String fromId = String.valueOf(edge.getRowKey());
@@ -100,19 +100,19 @@ public class Spine {
     }
     
     private void weighEdges() {
-      double maxCount = flowGraph.maxEdgeCount() + 1.0;
+      double maxCount = graphModel.maxEdgeCount() + 1.0;
       for(Edge edge : graphicGraph.getEachEdge()) {
         Node from = edge.getSourceNode();
         Node to = edge.getTargetNode();
         int fromId = Integer.parseInt(from.toString());
         int toId = Integer.parseInt(to.toString());
-        int count = flowGraph.getEdgeCount(fromId, toId);
+        int count = graphModel.getEdgeCount(fromId, toId);
         double weight = (maxCount - count)/maxCount;
         edge.addAttribute("layout.weight", weight);
       }
     }
   
-  public Spine setLayoutComputer(BarnesHutLayout computer) {
+  public Spine<G> setLayoutComputer(BarnesHutLayout computer) {
     if(computer == null) {
       throw new RuntimeException("The layout computer cannot be null!");
     }
@@ -122,7 +122,7 @@ public class Spine {
     return this;
   }
   
-  public Spine setCommunityComputer(AbstractCommunityComputer computer) {
+  public Spine<G> setCommunityComputer(AbstractCommunityComputer computer) {
     if(computer == null) {
       throw new RuntimeException("The community computer cannot be null!");
     }
@@ -131,7 +131,7 @@ public class Spine {
     return this;
   }
   
-  public Spine computeLayout() {
+  public Spine<G> computeLayout() {
     double limit = layoutComputer.getStabilizationLimit();
     double stab = 0.0;
     int count = 0;
@@ -150,7 +150,7 @@ public class Spine {
     private void pinNodesOnDynamicFlowGraph() {
       for(Node node : graphicGraph.getEachNode()) {
         int nodeId = Integer.valueOf(node.getId());
-        SourceLineNode lineNode =  flowGraph.getNode(nodeId);
+        SimpleNode lineNode =  graphModel.getNode(nodeId);
         Object[] xyz = node.getAttribute("xyz");
         System.out.println(Arrays.toString(xyz));
         double x = (double)xyz[0] * 20;
@@ -166,44 +166,44 @@ public class Spine {
     return this;
   }
   
-  public Spine computeVisualClusters() {
+  public Spine<G> computeVisualClusters() {
     System.out.println("starting the clustering!");
     double eps = 30.0;
     int minPts = 2;
-    DBSCANClusterer<SourceLineNode> clusterer = new DBSCANClusterer<>(eps, minPts);
-    ArrayList<SourceLineNode> nodes = new ArrayList<>(); 
+    DBSCANClusterer<SimpleNode> clusterer = new DBSCANClusterer<>(eps, minPts);
+    ArrayList<SimpleNode> nodes = new ArrayList<>(); 
     HashSet<Integer> visitedNodeIds = new HashSet<>();
-    for(Cell<Integer, Integer, Integer> flow : flowGraph.getEdges()) {
+    for(Cell<Integer, Integer, Integer> flow : graphModel.getEdges()) {
       int fromId = flow.getRowKey();
       if(!visitedNodeIds.contains(fromId)) {
         visitedNodeIds.add(fromId);
-        SourceLineNode node = flowGraph.getNode(fromId);
+        SimpleNode node = graphModel.getNode(fromId);
         nodes.add(node);
       }
       
       int toId = flow.getColumnKey();
       if(!visitedNodeIds.contains(toId)) {
         visitedNodeIds.add(toId);
-        SourceLineNode node = flowGraph.getNode(toId);
+        SimpleNode node = graphModel.getNode(toId);
         nodes.add(node);
       }
     }
     
-    List<Cluster<SourceLineNode>> clusters = clusterer.cluster(nodes);
+    List<Cluster<SimpleNode>> clusters = clusterer.cluster(nodes);
     System.out.println("this graph has been clustered. (drops mike and walks off)");
     
     int clusterId = -1;
-    for(Cluster<SourceLineNode> cluster : clusters) {
+    for(Cluster<SimpleNode> cluster : clusters) {
       clusterId += 1;
       System.out.println(clusterId);
-      for(SourceLineNode node : cluster.getPoints()) {
-        SourceLineNode node2 = flowGraph.getNode(node.id());
+      for(SimpleNode node : cluster.getPoints()) {
+        SimpleNode node2 = graphModel.getNode(node.id());
         node2.initColorGroup(clusterId);
         System.out.println(node2.toString() + " " + node2.colorGroup);
       }
     }
 
-    flowGraph.setClusterCount(clusters.size());
+    graphModel.setClusterCount(clusters.size());
 
     return this;
   }
@@ -211,7 +211,7 @@ public class Spine {
   public void spitGraph(String subject) throws IOException {
     String fileName = subject + LayoutFactory.layoutConfig; 
     String brainPath = fileName + ".json";
-    flowGraph.spitDynamicFlowGraph(new PrintStream(brainPath));
+    graphModel.spitDynamicFlowGraph(new PrintStream(brainPath));
     FileSinkImages pic = new FileSinkImages(OutputType.PNG, Resolutions.VGA);
     pic.writeAll(graphicGraph, fileName + ".png");
     System.out.println("\n" + fileName);

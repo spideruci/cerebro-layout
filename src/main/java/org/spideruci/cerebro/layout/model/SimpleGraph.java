@@ -12,11 +12,13 @@ import com.google.common.collect.Table.Cell;
 public class SimpleGraph<T extends SimpleNode> {
 
   protected final HashBasedTable<Integer, Integer, Integer> edges;
-  protected final ArrayList<T> nodes; 
+  protected final ArrayList<T> nodes;
+  private int clusterCount; 
 
   public SimpleGraph() {
     edges = HashBasedTable.create();
     nodes = new ArrayList<>();
+    clusterCount = -1;
   }
   
   public T addNode(T node) {
@@ -62,6 +64,14 @@ public class SimpleGraph<T extends SimpleNode> {
 
   public T getNode(int nodeId) {
     return this.nodes.get(nodeId - 1);
+  }
+  
+  public void setClusterCount(int clusterCount) {
+    this.clusterCount = clusterCount;
+  }
+
+  public int getClusterCount() {
+    return this.clusterCount;
   }
   
   public void spitDynamicFlowGraph(PrintStream out) {

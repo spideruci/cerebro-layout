@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.spideruci.analysis.trace.TraceEvent;
 
 public class DynamicFlowGraph extends SimpleGraph<SourceLineNode> {
-  private int clusterCount;
   private final ArrayList<FlowIdent> flows;
   
   public final StringArrayRegistry classCodes;
@@ -17,7 +16,6 @@ public class DynamicFlowGraph extends SimpleGraph<SourceLineNode> {
     classCodes = new StringArrayRegistry();
     methodCodes = new StringArrayRegistry();
     flows = new ArrayList<>();
-    clusterCount = -1;
   }
 
   public SourceLineNode addNode(TraceEvent event) {
@@ -57,14 +55,6 @@ public class DynamicFlowGraph extends SimpleGraph<SourceLineNode> {
     String methodName = node.className() + "." + node.methodName();
     int methodCode = methodCodes.entryCode(methodName);
     return methodCode;
-  }
-
-  public void setClusterCount(int clusterCount) {
-    this.clusterCount = clusterCount;
-  }
-
-  public int getClusterCount() {
-    return this.clusterCount;
   }
 
   @Override
