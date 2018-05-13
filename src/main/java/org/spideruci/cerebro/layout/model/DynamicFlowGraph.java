@@ -2,14 +2,8 @@ package org.spideruci.cerebro.layout.model;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
 
 import org.spideruci.analysis.trace.TraceEvent;
-
-import com.cedarsoftware.util.io.JsonWriter;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table.Cell;
 
 public class DynamicFlowGraph extends SimpleGraph<SourceLineNode> {
   private int clusterCount;

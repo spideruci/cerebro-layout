@@ -7,7 +7,6 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 public class LayoutFactory {
   
   public static String layoutConfig = null;
-
   public static SpringBox getSpringBox(boolean is3D) {
     SpringBox layout = new SpringBox(is3D);
     //NewSpringBox layout = new NewSpringBox();
